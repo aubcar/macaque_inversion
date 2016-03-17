@@ -157,5 +157,12 @@ samtools view -bh M_Rhesus.sorted.bam chr2 >M_Rhesus.sorted.chr2.bam
 
 ```
 
-###Step10
+###Step10-bam2cfg.pl
+
+##Step11-breakdancer
+###Step12-filtering
+###Step13-bedfile formation
+###Step14- analysis 
+
+
 
