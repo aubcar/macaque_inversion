@@ -17,17 +17,17 @@ A 5-year-old female CR macaque and a 4-year-old female CE macaque of Vietnamese 
 
 ```
 
-for x in {1..22}   
+for x in {1..125}   #125 comes from the wc -l of Table.txt(taken from the run data)
 do
-    input=$(awk "NR==$x {print \$0}" ~/rhedata2/Table2.txt)
+    input=$(awk "NR==$x {print \$0}" ~/rhedata2/Table.txt)
     echo "fastq-dump -I $input --split-files --origfmt" >>$x.sh
     echo "gzip -f ${input}_1.fastq ${input}_2.fastq">>$x.sh 
     chmod a+x $x.sh
 done
 ```
 
- nodes 4,8gbs ram,48hrs, medium-parallel                                                                                                                                                               
-###Step2
+ Resources used- nodes 4,8gbs ram,48hrs, medium-parallel                                                                                                                                                               
+###Step2 - Alignment and sorting using BWA 0.7.12 and Samtols 1.2
 ```
 #cd ~/                                                                                                                                                                                                  
 #cp  stevison/rheMac3.*  /scratch/aubcar/rhe-align/                                                                                                                                                     
@@ -44,7 +44,7 @@ do
 done
 ```
 
-###Step3
+###Step3 - Adding read group library infomation to the bam files using PICARD tools versin 1.79
 ```
 #module load picard/1.79
 #java -Xms2g -Xmx4g -jar /opt/asn/apps/picard_1.79/picard-tools-1.79/AddOrReplaceReadGroups.jar INPUT=SRR066239.sorted.bam RGID=SRR066239 RGLB=MACzhDACDFBAPE-44 RGPL=Illumina RGPU=run RGSM=BGI-CR-5 OU
@@ -69,7 +69,7 @@ done
 # 5 hours, 1 cpu , 4gb small-serial 
 ```
 
-###Step4
+###Step4 - Mergingfiles using PICARD tools version 1.79
 
 ```
 #! /bin/sh 
@@ -102,25 +102,25 @@ java -Xms2g -Xmx4g -jar /opt/asn/apps/picard_1.79/picard-tools-1.79/MergeSamFile
 # Ran with options medium-serial, 4gb, 1 cpu , 90 hours 
 ```
 
-###Step5
+###Step5 - Sorting the newly merged bam with PICARD tools version 1.79
 ```
 #!/bin/sh
 source /opt/asn/etc/asn-bash-profiles-special/modules.sh
-module load picard/1.70
+module load picard/1.79
 java -Xms2g -Xmx14g -jar /opt/asn/apps/picard_1.79/picard-tools-1.79/BuildBamIndex.jar I=rheMac3.masked.fa  O=rheMac3.masked.fa.fai
 ```
 
-###Step6
+###Step6 - Marking the Duplicates using Picard tools version 1.79
 ```
 #!/bin/sh
 source /opt/asn/etc/asn-bash-profiles-special/modules.sh
-module load picard/1.70
+module load picard/1.79
 
 java -Xms2g -Xmx14g -jar /opt/asn/apps/picard_1.79/picard-tools-1.79/MarkDuplicates.jar INPUT= M_Rhesus.sorted.bam OUTPUT= M_Rhesus.sorted.mkdup.bam METRICS_FILE=Rhesus.txt OPTICAL_DUPLICATE_PIXEL_DIS
 TANCE=2500 
 ```
 
-#Step 7
+#Step 7 - Step one, marking the indels and creating an intervals file. Using GATK 
 ```
 #! /bin/bash
 # script to run GATK
@@ -130,7 +130,7 @@ module load gatk
 java -Xms2g -Xmx14g -jar /opt/asn/apps/gatk_3.4-46/GenomeAnalysisTK.jar -R rheMac3.masked.fa  -T RealignerTargetCreator -I M_Rhesus.sorted.mkdup.bam  -o M_Rhesus.sorted.mkdup.intervals
 ```
 
-###Step 8
+###Step 8 Indel realignment step 2, using GATK 
 ```
 #! /bin/bash
 # script to run GATK
@@ -141,7 +141,7 @@ java -Xms2g -Xmx14g -jar /opt/asn/apps/gatk_3.4-46/GenomeAnalysisTK.jar -R rheMa
  M_Rhesus2.sorted.mkdup.intervals
 ```
 
-###Step 9
+###Step 9 extraction Using samtools view version 1.2
 ```
 #!/bin/sh
 
