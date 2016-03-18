@@ -1,7 +1,18 @@
-# macaque_inversion
-Chase Rushton Master's Thesis on macaque speciation
+#Macaque Inversion Project <Chase, you may want to change this to the name of your poster!>
 
-###Step1
+Brief description of the goals of the project
+
+Samples:
+1. _M. rhesus_ #1: SRR#### and brief description
+    Source: Link to paper in NCBI.
+2. _M. rhesus_ #2: SRR#### and brief description
+    Source: Link to paper in NCBI.
+3. _M. fascicularis_: SRR#### and brief description
+    Source: Link to paper in NCBI.
+
+###Step1. Extract SRR files using SRA Toolkit (version). 
+**Note: In addition to the raw code, you need to state what each step does and why you did it. Also, always specifiy version numbers to the software you used and links to any web resources you used.**
+
 ```
 
 for x in {1..22}   
