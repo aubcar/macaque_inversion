@@ -1,13 +1,14 @@
-#Macaque Inversion Project <Chase, you may want to change this to the name of your poster!>
+#Computational Identification of Structural Variants in Macaque 
 
-Brief description of the goals of the project
+###Ideology
+Use whole genome sequences to computationally identify and analyse structural varients in two species of hybridising macaques
 
-Samples:   
-1. _M. rhesus_ #1:  SRA023856 and brief description   
+####Samples:   
+1. _M. rhesus_ #1:  SRA023856  
     Source: Link to paper in NCBI.   https://www.ncbi.nlm.nih.gov/pubmed/22002653
-2. _M. rhesus_ #2: SRR278739 and brief description   
+2. _M. rhesus_ #2: SRR278739 
     Source: Link to paper in NCBI.   
-3. _M. fascicularis_: SRA023855  and brief description   
+3. _M. fascicularis_: SRA023855  
     Source: Link to paper in NCBI. https://www.ncbi.nlm.nih.gov/pubmed/22002653  
 
 A 5-year-old female CR macaque and a 4-year-old female CE macaque of Vietnamese origin were used in this study. The CR macaque individual was descended from an individual captured from the wild in Yunnan Province. The origins of these two individuals were confirmed by mitochondrial DNA sequencing. Genomic DNA was collected from the peripheral blood cells of these two individuals.
