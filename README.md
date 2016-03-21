@@ -15,8 +15,7 @@ A 5-year-old female CR macaque and a 4-year-old female CE macaque of Vietnamese 
 ###Step1. Extract SRR files using SRA Toolkit (version). 
 **Note: In addition to the raw code, you need to state what each step does and why you did it. Also, always specifiy version numbers to the software you used and links to any web resources you used.**
 
-```
-
+```Shell
 for x in {1..125}   #125 comes from the wc -l of Table.txt(taken from the run data)
 do
     input=$(awk "NR==$x {print \$0}" ~/rhedata2/Table.txt)
@@ -28,7 +27,7 @@ done
 
  Resources used- nodes 4,8gbs ram,48hrs, medium-parallel                                                                                                                                                               
 ###Step2 - Alignment and sorting using BWA 0.7.12 and Samtols 1.2
-```
+```Shell
 #cd ~/                                                                                                                                                                                                  
 #cp  stevison/rheMac3.*  /scratch/aubcar/rhe-align/                                                                                                                                                     
 for x in {1..125} #125 comes from wc -l of Table.txt                                                                                                                                                    
@@ -45,7 +44,7 @@ done
 ```
 
 ###Step3 - Adding read group library infomation to the bam files using PICARD tools versin 1.79
-```
+```Shell
 #module load picard/1.79
 #java -Xms2g -Xmx4g -jar /opt/asn/apps/picard_1.79/picard-tools-1.79/AddOrReplaceReadGroups.jar INPUT=SRR066239.sorted.bam RGID=SRR066239 RGLB=MACzhDACDFBAPE-44 RGPL=Illumina RGPU=run RGSM=BGI-CR-5 OU
 TPUT=SRR066239.wRG.bam  
