@@ -26,11 +26,10 @@ do
 done
 ```
 
- Resources used- nodes 4,8gbs ram,48hrs, medium-parallel                                                                                                                                                               
+                                                                                                                                           
 ###Step2 - Alignment and sorting using BWA 0.7.12 and Samtols 1.2
 ```Shell
-#cd ~/                                                                                                                                                                                                  
-#cp  stevison/rheMac3.*  /scratch/aubcar/rhe-align/                                                                                                                                                     
+                                            
 for x in {1..125} #125 comes from wc -l of Table.txt                                                                                                                                                    
 do
         echo "module load bwa/0.7.12">$x.alignment.sh
@@ -66,12 +65,12 @@ UT=$input.wRG.bam">>$x.addRG.sh
     chmod a+x $x.addRG.sh
 done
 
-# 5 hours, 1 cpu , 4gb small-serial 
+
 ```
 
 ###Step4 - Mergingfiles using PICARD tools version 1.79
 
-```
+```Shell
 #! /bin/sh 
 source /opt/asn/etc/asn-bash-profiles-special/modules.sh
 
@@ -99,11 +98,11 @@ inputs=`cat tmp_file`
 java -Xms2g -Xmx4g -jar /opt/asn/apps/picard_1.79/picard-tools-1.79/MergeSamFiles.jar $inputs OUTPUT=M_Rhesus.bam VALIDATION_STRINGENCY=SILENT
 
 
-# Ran with options medium-serial, 4gb, 1 cpu , 90 hours 
+
 ```
 
 ###Step5 - Sorting the newly merged bam with PICARD tools version 1.79
-```
+```Shell
 #!/bin/sh
 source /opt/asn/etc/asn-bash-profiles-special/modules.sh
 module load picard/1.79
@@ -111,7 +110,7 @@ java -Xms2g -Xmx14g -jar /opt/asn/apps/picard_1.79/picard-tools-1.79/BuildBamInd
 ```
 
 ###Step6 - Marking the Duplicates using Picard tools version 1.79
-```
+```Shell
 #!/bin/sh
 source /opt/asn/etc/asn-bash-profiles-special/modules.sh
 module load picard/1.79
@@ -121,7 +120,7 @@ TANCE=2500
 ```
 
 #Step 7 - Step one, marking the indels and creating an intervals file. Using GATK 
-```
+```Shell
 #! /bin/bash
 # script to run GATK
 # setup to use gatk
@@ -131,7 +130,7 @@ java -Xms2g -Xmx14g -jar /opt/asn/apps/gatk_3.4-46/GenomeAnalysisTK.jar -R rheMa
 ```
 
 ###Step 8 Indel realignment step 2, using GATK 
-```
+```Shell
 #! /bin/bash
 # script to run GATK
 # setup to use gatk
@@ -142,7 +141,7 @@ java -Xms2g -Xmx14g -jar /opt/asn/apps/gatk_3.4-46/GenomeAnalysisTK.jar -R rheMa
 ```
 
 ###Step 9 extraction Using samtools view version 1.2
-```
+```Shell
 #!/bin/sh
 
 #queue: medium-serial
