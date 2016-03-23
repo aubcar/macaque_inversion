@@ -157,6 +157,8 @@ java -Xms2g -Xmx14g -jar /opt/asn/apps/gatk_3.4-46/GenomeAnalysisTK.jar -R rheMa
 
 ###Step 9 extraction Using samtools view version 1.2
 >To cut down on computational time and frivilous file sizes down the pipeline, chromosomes 2 and 5 were extracted. 
+
+
 ```Shell
 #!/bin/sh
 
