@@ -158,20 +158,8 @@ java -Xms2g -Xmx14g -jar /opt/asn/apps/gatk_3.4-46/GenomeAnalysisTK.jar -R rheMa
 ###Step 9 extraction Using samtools view version 1.2
 >To cut down on computational time and frivilous file sizes down the pipeline, chromosomes 2 and 5 were extracted. 
 
-
 ```Shell
 #!/bin/sh
-
-#queue: medium-serial
-#number nodes: 1
-#mem: 4gb
-#clock-time: 90:00:00 
-
-# Your job requested : cput=100:00:00,mem=32gb,neednodes=1:ppn=8,nodes=1:ppn=8,walltime=18:00:00
-# Your job used : cput=12:58:35,mem=32769464kb,vmem=33228816kb,walltime=05:33:44
-# Your job's parallel cpu utilization : 29%
-# Your job's memory utilization (mem) : 97.66%
-
 module load samtools/1.2
 
 samtools index M_Rhesus.sorted.bam
@@ -190,9 +178,11 @@ samtools view -bh M_Rhesus.sorted.bam chr2 >M_Rhesus.sorted.chr2.bam
 ###Step10-bam2cfg.pl
 
 ##Step11-breakdancer
-###Step12-filtering
-###Step13-bedfile formation
-###Step14- analysis 
 
+###Step12-filtering + bedfile formation
+> Files were filtered for <1Mb, 90% confidence, and inversion variance and piped into a bed file.
+
+###Step13- analysis 
+> Files were loaded into UCSC genome browser and IGV for analysis. 
 
 
