@@ -52,12 +52,7 @@ done
 >Next read groups were added to each sample. Many algorithms in the GATK pipeline need to know that certain reads were sequenced together in a specific lane, as they attempt to compensate for variability from one sequencing run to the next. Some algorithms need to know the data represents many samples, not just one. Without the read groups and sample information assigned GATK has no way of determining vial information, all reads within a group are assumed to come from the same instrument run, therefore sharing the same error model. Allowing GATK tools to treat all read groups with the same SM value.
 
 ```Shell
-#module load picard/1.79
-#java -Xms2g -Xmx4g -jar /opt/asn/apps/picard_1.79/picard-tools-1.79/AddOrReplaceReadGroups.jar INPUT=SRR066239.sorted.bam RGID=SRR066239 RGLB=MACzhDACDFBAPE-44 RGPL=Illumina RGPU=run RGSM=BGI-CR-5 OU
-TPUT=SRR066239.wRG.bam  
-
-
-for x in {1..125} #125 comes from wc -l of Table.txt
+  for x in {1..125} #125 comes from wc -l of Table.txt
 do 
     echo "#! /bin/sh 
 source /opt/asn/etc/asn-bash-profiles-special/modules.sh">$x.addRG.sh
@@ -71,23 +66,12 @@ UT=$input.wRG.bam">>$x.addRG.sh
 
     chmod a+x $x.addRG.sh
 done
-
-
 ```
 
 ###Step4 - Mergingfiles using PICARD tools version 1.79
 >A subsequent side effect of all the SRR files is multiple bam files; to make analysis easier, samtools was used to merge the individual lanes back into a single file for easier data manipulation.
 
 ```Shell
-#! /bin/sh 
-source /opt/asn/etc/asn-bash-profiles-special/modules.sh
-
-module load picard/1.79
-
-# mv *.fastq.gz /scratch/aubcar/rhe-align
-
-cd /scratch/aubcar/rhe-align 
-
 rhesus_sorted=($(ls SRR*.wRG.bam))
 
 num_files=($(ls SRR*.wRG.bam | wc -l | awk '{print $1}'))
@@ -104,9 +88,6 @@ for i in $(eval echo {0..$corrected})
 
 inputs=`cat tmp_file`
 java -Xms2g -Xmx4g -jar /opt/asn/apps/picard_1.79/picard-tools-1.79/MergeSamFiles.jar $inputs OUTPUT=M_Rhesus.bam VALIDATION_STRINGENCY=SILENT
-
-
-
 ```
 
 ###Step5 - Sorting the newly merged bam with PICARD tools version 1.79
@@ -114,9 +95,6 @@ java -Xms2g -Xmx4g -jar /opt/asn/apps/picard_1.79/picard-tools-1.79/MergeSamFile
 
 
 ```Shell
-#!/bin/sh
-source /opt/asn/etc/asn-bash-profiles-special/modules.sh
-module load picard/1.79
 java -Xms2g -Xmx14g -jar /opt/asn/apps/picard_1.79/picard-tools-1.79/BuildBamIndex.jar I=rheMac3.masked.fa  O=rheMac3.masked.fa.fai
 ```
 
@@ -124,10 +102,6 @@ java -Xms2g -Xmx14g -jar /opt/asn/apps/picard_1.79/picard-tools-1.79/BuildBamInd
 >marking the duplicates, this was achieved by using picard tools, the purpose of this step is to mitigate as much as possible the effects of the PCR amplification bias that is introduced during library construction. An added benefit gained downstream is the computational processing is reduced subsequent steps. However there are drawbacks, removing duplicates comes at the cost of setting a rather low hard cap, on the dynamic range of measurement you are going to produce.
 
 ```Shell
-#!/bin/sh
-source /opt/asn/etc/asn-bash-profiles-special/modules.sh
-module load picard/1.79
-
 java -Xms2g -Xmx14g -jar /opt/asn/apps/picard_1.79/picard-tools-1.79/MarkDuplicates.jar INPUT= M_Rhesus.sorted.bam OUTPUT= M_Rhesus.sorted.mkdup.bam METRICS_FILE=Rhesus.txt OPTICAL_DUPLICATE_PIXEL_DIS
 TANCE=2500 
 ```
@@ -135,33 +109,19 @@ TANCE=2500
 #Step 7 - Step one, marking the indels and creating an intervals file. Using GATK 
 > Step one of indel realignment creates a target file locating the indels for step two to go locally rearange them. 
 ```Shell
-#! /bin/bash
-# script to run GATK
-# setup to use gatk
-source /opt/asn/etc/asn-bash-profiles/modules.sh
-module load gatk 
 java -Xms2g -Xmx14g -jar /opt/asn/apps/gatk_3.4-46/GenomeAnalysisTK.jar -R rheMac3.masked.fa  -T RealignerTargetCreator -I M_Rhesus.sorted.mkdup.bam  -o M_Rhesus.sorted.mkdup.intervals
 ```
 
 ###Step 8 Indel realignment step 2, using GATK 
 >insertion and deletion realignment was run via GATK, indel realigners locally rearrange reads inregions where INDELS might be present in order to more easily identify them.
 ```Shell
-#! /bin/bash
-# script to run GATK
-# setup to use gatk
-source /opt/asn/etc/asn-bash-profiles/modules.sh
-module load gatk 
-java -Xms2g -Xmx14g -jar /opt/asn/apps/gatk_3.4-46/GenomeAnalysisTK.jar -R rheMac3.masked.fa -T IndelRealigner  -I M_Rhesus2.sorted.mkdup.bam  -o M_Rhesus2.wrg.sorted.mkdup.indel.bam  -targetIntervals
- M_Rhesus2.sorted.mkdup.intervals
+java -Xms2g -Xmx14g -jar /opt/asn/apps/gatk_3.4-46/GenomeAnalysisTK.jar -R rheMac3.masked.fa -T IndelRealigner  -I M_Rhesus2.sorted.mkdup.bam  -o M_Rhesus2.wrg.sorted.mkdup.indel.bam  -targetIntervals M_Rhesus2.sorted.mkdup.intervals
 ```
 
 ###Step 9 extraction Using samtools view version 1.2
 >To cut down on computational time and frivilous file sizes down the pipeline, chromosomes 2 and 5 were extracted. 
 
 ```Shell
-#!/bin/sh
-module load samtools/1.2
-
 samtools index M_Rhesus.sorted.bam
 samtools view -bh M_Rhesus.sorted.bam chr5 >M_Rhesus.sorted.chr5.bam
 samtools view -bh M_Rhesus.sorted.bam chr2 >M_Rhesus.sorted.chr2.bam
