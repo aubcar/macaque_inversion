@@ -243,16 +243,94 @@ samtools view -bh M_Rhesus.sorted.bam chr2 >M_Rhesus.sorted.chr2.bam
 ###Step11
 HYDRA/LUMPY/DELLY/BD
 
-###bam2cfg.pl
+####hydra
+```shell
+####step1 aligment hydra
+
+for x in {1..125} #125 comes from wc -l of Table.txt
+do
+
+echo "queue info">$x.hydra.sh
+        
+        echo "module load bwa/0.7.15">>$x.hydra.sh
+        echo "module load samtools/1.3.1">>$x.hydra.sh
+        input=$(awk "NR==$x {print \$0}" ./Table.txt)
+        echo "bwa aln -t 4 /home/car0019/hydra_rhesus/rheMac3 /home/car0019/hydra_rhesus/${input}_1.fastq > /home/car0019/hydra_rhesus/${input}_1.sai" >> $x.hydra.sh
+        echo "bwa aln -t 4 /home/car0019/hydra_rhesus/rheMac3 /home/car0019/hydra_rhesus/${input}_2.fastq > /home/car0019/hydra_rhesus/${input}_2.sai" >> $x.hydra.sh
+        echo " bwa sampe /home/car0019/hydra_rhesus/rheMac3 /home/car0019/hydra_rhesus/${input}_1.sai /home/car0019/hydra_rhesus/${input}_2.sai /home/car0019/hydra_rhesus/${input}_1.fastq /home/car0019/hydra_rhesus/${input}_2.fastq  | samtools view -Sbu - > /home/car0019/hydra_rhesus/$input.bam" >> $x.hydra.sh
+        chmod a+x $x.hydra.sh
+done
+
+
+####step2  Tier 2 alignment
+module load samtools 
+module load novocraft/3.4.6
+module load bedtools/2
+ls | grep ".bam$" > list.txt
+files=`cat list.txt` 
+for i in ${files} 
+do 
+
+samtools view -uF 2 ${i}| bamToFastq -i ${i}  -fq ${i}.ter1.disc.1.fq  -fq2 ${i}.tier1.disc.2.fq
+novoalign -d rheMac3 -f ${i}.ter1.disc.1.fq ${i}.tier1.disc.2.fq -i 375 1800 -r Random -o SAM | samtools view -Sb - > ${i}.tier2.queryorder.bam 
+
+done
+
+rm ${i}.ter1.disc.1.fq
+rm ${i}.tier1.disc.2.fq
+
+
+###step3 alignment 
+```
+
+####lumpy
+```shell
+data_dir=/home/car0019/asc_data/data/
+
+ls | grep ".bam$" > list.txt
+files=`cat list.txt` 
+for i in ${files} 
+do 
+lumpyexpress -B ${data_dir}${i} -v -P 
+done
+```
+
+####delly 
+
+```shell
+module load delly
+wd=/home/car0019/delly/
+cd ${wd}
+data_dir=/home/car0019/asc_data/data/
+ls | grep ".bam$" > list.txt
+files=`cat list.txt`
+ref=rheMac3.masked.fa 
+for i in ${files} 
+do 
+delly call -g ${data_dir}${ref} -t INV -e illumina ${i} -o ${i}.bcf
+done 
+```
+####convert delly bcf to vcf using bcftools
+```
+ls | grep ".bcf$" > list.txt
+files=`cat list.txt`
+
+for i in ${files} 
+do 
+bcftools convert ${i} -O v -o {i}.vcf
+done
+```
+
+
+####breakdancer
 ```shell
 bam2cfg.pl -g -h -v 2 -q 40 M_Rhesus.wrg.sorted.mkdup.indel.bam > M_Rhesus.wrg.sorted.mkdup.indel.cfg
 ```
-###breakdancer
+
 ```shell
 breakdancer-max -d reads M_Rhesus.wrg.sorted.mkdup.indel.cfg > M_Rhesus.wrg.sorted.mkdup.indel.ctx
-
-
 ```
+
 ###Step12-filtering + bedfile formation
 > Files were filtered for <1Mb, 90% confidence, and inversion variance and piped into a bed file.
 
