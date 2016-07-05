@@ -118,7 +118,13 @@ java -Xms2g -Xmx14g -jar /opt/asn/apps/gatk_3.4-46/GenomeAnalysisTK.jar -R rheMa
 java -Xms2g -Xmx14g -jar /opt/asn/apps/gatk_3.4-46/GenomeAnalysisTK.jar -R rheMac3.masked.fa -T IndelRealigner  -I M_Rhesus2.sorted.mkdup.bam  -o M_Rhesus2.wrg.sorted.mkdup.indel.bam  -targetIntervals M_Rhesus2.sorted.mkdup.intervals
 ```
 
-###Step 9 extraction Using samtools view version 1.2
+
+###STEP 9 BQSR
+
+
+
+
+###Step 10 extraction Using samtools view version 1.2
 >To cut down on computational time and frivilous file sizes down the pipeline, chromosomes 2 and 5 were extracted. 
 
 ```Shell
@@ -135,13 +141,19 @@ samtools view -bh M_Rhesus.sorted.bam chr2 >M_Rhesus.sorted.chr2.bam
 
 ```
 
-###Step10-bam2cfg.pl
+
+###Step11
+HYDRA/LUMPY/DELLY/BD
+
+###bam2cfg.pl
 ```shell
 bam2cfg.pl -g -h -v 2 -q 40 M_Rhesus.wrg.sorted.mkdup.indel.bam > M_Rhesus.wrg.sorted.mkdup.indel.cfg
 ```
-##Step11-breakdancer
+###breakdancer
 ```shell
 breakdancer-max -d reads M_Rhesus.wrg.sorted.mkdup.indel.cfg > M_Rhesus.wrg.sorted.mkdup.indel.ctx
+
+
 ```
 ###Step12-filtering + bedfile formation
 > Files were filtered for <1Mb, 90% confidence, and inversion variance and piped into a bed file.
@@ -151,7 +163,8 @@ breakdancer-max -d reads M_Rhesus.wrg.sorted.mkdup.indel.cfg > M_Rhesus.wrg.sort
 awk '$0!~/^#/ && $8>=100000 && $8<=90000000 && $9>=90 && $7~/INV/ {print $1,$2,$5}' M_Rhesus.wrg.sorted.mkdup.indel.chr5.ctx >M_Rhesus.wrg.sorted.mkdup.indel.chr5.bed
 ```
 
+
 ###Step13- analysis 
-> Files were loaded into UCSC genome browser and IGV for analysis. 
+> Files were loaded into UCSC genome browser and IGV/Tablet for analysis. 
 
 
