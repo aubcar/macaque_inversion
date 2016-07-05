@@ -13,6 +13,20 @@ Use whole genome sequences to computationally identify and analyse structural va
 
 >A 5-year-old female CR macaque and a 4-year-old female CE macaque of Vietnamese origin were used in this study. The CR macaque individual was descended from an individual captured from the wild in Yunnan Province. The origins of these two individuals were confirmed by mitochondrial DNA sequencing. Genomic DNA was collected from the peripheral blood cells of these two individuals.
 
+###Programs used
+1.Breakdacer (source)
+
+
+
+2. Lumpy (source)
+
+
+
+3. Delly (source)
+
+
+4. Hydra (source) 
+
 ###Step1-  Extract SRR files using SRA Toolkit. 
 >Locate your study,  download the SRA list( if multiple sequences) and write a forloop to download the fastq files to your workstation and unzip them 
 
