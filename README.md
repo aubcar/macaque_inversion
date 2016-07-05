@@ -120,9 +120,93 @@ java -Xms2g -Xmx14g -jar /opt/asn/apps/gatk_3.4-46/GenomeAnalysisTK.jar -R rheMa
 
 
 ###STEP 9 BQSR
+```Shelll 
 
 
+###Change into correct directory
+wd=/home/car0019/hbqsr/
+cd ${wd}
 
+
+##load in all required modules
+module load vcftools/v0.1.14-14
+module load gatk/3.6
+module load R/3.2.4
+module load samtools
+
+###define the paths to tools being used
+gatk_path=/tools/gatk-3.6/
+vcf_tools_path=/tools/vcftools-v0.1.14-14/bin/
+export PERL5LIB=/tools/vcftools-v0.1.14-14/share/perl5/
+
+
+###define all variables
+reference=rheMac3.masked.fa
+bam_file=M_Rhesus.wrg.sorted.mkdup.indel.recal1.bam
+filtered_output=var.rhesus1
+iteration=second
+Qual=500
+min_depth=50
+max_depth=123
+pre_GATK_vcf=${filtered_output}${iteration}.vcf
+ouputbam=M_Rhesus.wrg.sorted.mkdup.indel.recal2.bam
+
+###Haplotype caller (step1) get raw vcf
+
+java -Xms2g -Xmx4g -jar ${gatk_path}GenomeAnalysisTK.jar -T HaplotypeCaller -R ${wd}${reference} -I ${bam_file} -o ${filtered_output}${iteration}.vcf
+
+###filter the VCF based on calculated stats
+
+${vcf_tools_path}vcftools --vcf  ${filtered_output}${iteration} --minDP ${min_depth} --maxDP ${max_depth} --max-missing 1 --minQ ${Qual} --recode --recode-INFO-all --out ${wd}${pre_GATK_vcf}
+                                                                                                                                                                                                                                                                                                                                         
+
+
+###make pre recal table using GATK 
+
+java -jar ${gatk_path}GenomeAnalysisTK.jar -T BaseRecalibrator -nct 8 -R ${wd}${reference} -I ${wd}${bam_file} -knownSites ${wd}${pre_GATK_vcf}.recode.vcf -o ${wd}${filtered_output}_recal_data\
+.table
+
+                                                                                                                                                     
+echo "before gatk" > test.txt
+
+###post table 
+java -jar ${gatk_path}GenomeAnalysisTK.jar -T BaseRecalibrator -nct 8 -R ${wd}${reference} -I ${wd}${bam_file} -knownSites ${wd}${pre_GATK_vcf}.recode.vcf -BQSR ${wd}${filtered_output}_recal_d\
+ata.table -o ${wd}${filtered_output}_post_recal_data.table
+
+echo "after gatk" >> test.txt
+
+
+echo "before" > test.txt
+
+###make the plots of the tables
+
+java -jar ${gatk_path}GenomeAnalysisTK.jar -T AnalyzeCovariates -R ${wd}${reference}-l DEBUG -csv ${wd}${filtered_output}.csv -before ${wd}${filtered_output}_recal_data.table -after ${wd}${filtered_output}_post_recal_data.table -plots ${wd}${filtered_output}.recalibration.plots.pdf
+
+echo "after" >> test.txt
+
+echo "before" > test.txt
+###add the recalibration to the bam file
+
+java -Xms2g -Xmx8g -jar ${gatk_path}GenomeAnalysisTK.jar -T PrintReads -R ${wd}${reference} -I ${wd}${bam_file} -BQSR ${wd}${filtered_output}_recal_data.table -o ${wd}${outputbam}
+
+echo "after" >>test.txt
+
+###vcf compare to see if you need to run BQSR another time
+
+java -Xms2g -Xmx4g -jar ${gatk_path}GenomeAnalysisTK.jar -T HaplotypeCaller -R ${wd}${reference} -I ${outputbam} -o ${filtered_output}.postrecal.vcf
+
+${vcf_tools_path}vcftools --vcf ${filtered_output}.postrecal.vcf --minDP ${min_depth} --maxDP ${max_depth} --max-missing 1 --minQ ${Qual} --recode --recode-INFO-all --out ${wd}${filtered_output}.postrecal.filtered
+
+file1=${pre_GATK_vcf}.recode.vcf
+file2=${filtered_output}.postrecal.filtered.recode.vcf
+bgzip ${file1}
+bgzip ${file2}
+tabix ${file1}
+tabix ${file2}
+${vcf_tools_path}vcf-compare ${file1} ${file2} > vcf_compare2.txt
+
+###Repeat BQSR till VCF compare=99%
+```
 
 ###Step 10 extraction Using samtools view version 1.2
 >To cut down on computational time and frivilous file sizes down the pipeline, chromosomes 2 and 5 were extracted. 
