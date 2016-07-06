@@ -134,9 +134,8 @@ java -Xms2g -Xmx14g -jar /opt/asn/apps/gatk_3.4-46/GenomeAnalysisTK.jar -R rheMa
 
 
 ###STEP 9 BQSR
+
 ```Shelll 
-
-
 ###Change into correct directory
 wd=/home/car0019/hbqsr/
 cd ${wd}
