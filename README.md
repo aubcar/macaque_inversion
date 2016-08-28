@@ -351,3 +351,19 @@ cat 20mb.inv.Fascicularis.sam | grep -v ^@ | awk 'NR%2==0 {print "@"$1"\n"$10"\n
 
 phrap 20mb.inv.Fascicularis._1.fastq 20mb.inv.Fascicularis._2.fastq
 ```
+
+
+##Primer design using UCSC and ITG
+
+Forward Lumpy
+CAGACAACATTAATGTAAACAGTTAAG
+ReverseLumpy
+GCTCACCATGACAAAGCTGCCTTTGCT
+
+
+forward BD+delly
+CAAATCATGTTAATGTATTATTCATTC
+Reverse BD+delly
+CAGCAGAAGAATAGAACAACTCTTTTA
+
+
