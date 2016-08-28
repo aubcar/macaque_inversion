@@ -319,7 +319,7 @@ do
 bcftools convert ${i} -O v -o {i}.vcf
 done
 ```
-
+###hydra
 
 ####breakdancer
 ```shell
@@ -342,4 +342,12 @@ awk '$0!~/^#/ && $8>=100000 && $8<=90000000 && $9>=90 && $7~/INV/ {print $1,$2,$
 ###Step13- analysis 
 > Files were loaded into UCSC genome browser and IGV/Tablet for analysis. 
 
+###Extration of inverted region for denovo assembly with phrap
 
+```shell
+samtools view M_Fascicularis.second_pass.recalibrated.bam chr5:40000000-60000000 > 20mb.inv.Fascicularis.sam | cat 20mb.inv.Fascicularis.sam | grep -v ^@ | awk 'NR%2==1 {print "@"$1"\n"$10"\n+\n"$11}' > 20mb.inv.Fascicularis._1.fastq
+
+cat 20mb.inv.Fascicularis.sam | grep -v ^@ | awk 'NR%2==0 {print "@"$1"\n"$10"\n+\n"$11}' > 20mb.inv.Fascicularis._2.fastq
+
+phrap 20mb.inv.Fascicularis._1.fastq 20mb.inv.Fascicularis._2.fastq
+```
