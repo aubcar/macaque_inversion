@@ -158,9 +158,10 @@ reference=rheMac3.masked.fa
 bam_file=M_Rhesus.wrg.sorted.mkdup.indel.recal1.bam
 filtered_output=var.rhesus1
 iteration=second
-Qual=500
-min_depth=50
-max_depth=123
+Qual=50
+GQ=40
+min_depth=30
+max_depth=100
 pre_GATK_vcf=${filtered_output}${iteration}.vcf
 ouputbam=M_Rhesus.wrg.sorted.mkdup.indel.recal2.bam
 
