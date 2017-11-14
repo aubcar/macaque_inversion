@@ -154,13 +154,17 @@ export PERL5LIB=/tools/vcftools-v0.1.14-14/share/perl5/
 
 
 ###define all variables
+
+
 reference=rheMac3.masked.fa
 bam_file=M_Rhesus.wrg.sorted.mkdup.indel.recal1.bam
 filtered_output=var.rhesus1
 iteration=second
 Qual=50
 GQ=40
+#mean-SD
 min_depth=30
+#5*SD
 max_depth=100
 pre_GATK_vcf=${filtered_output}${iteration}.vcf
 ouputbam=M_Rhesus.wrg.sorted.mkdup.indel.recal2.bam
